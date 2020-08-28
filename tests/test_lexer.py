@@ -75,6 +75,7 @@ class TestLexNumber(unittest.TestCase):
             ('-10', (3, -10)),
             ('10', (2, 10)),
             ('a', (0, None)),
+            ('+1', (0, None)),
         ]
         for test, expect in tests:
             with raise_with_message(test, expect):
@@ -110,7 +111,6 @@ class TestLexNumber(unittest.TestCase):
             '1ee3',
             '1e3e',
             '1e',
-            '1-e3',
         ]
         for test in tests:
             with self.assertRaisesRegex(Exception, 'Invalid float'):
@@ -129,6 +129,8 @@ class TestLexNumber(unittest.TestCase):
     def test_lex_fail_invalid_int(self):
         tests = [
             '01',
+            '1-e3',
+            '1+1',
         ]
         for test in tests:
             with self.assertRaisesRegex(Exception, 'Invalid int'):

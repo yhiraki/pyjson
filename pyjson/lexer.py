@@ -84,7 +84,7 @@ def lex_string(i, string):
 
 def lex_number(i, string):
     numbers = [str(i) for i in range(10)]
-    symbols = ['.', 'e', '-']
+    symbols = ['.', 'e', '-', '+']
     number_chars = numbers + symbols
 
     if string[i] not in (numbers + ['-']):
@@ -98,9 +98,11 @@ def lex_number(i, string):
             if is_float:
                 raise Exception('Invalid float')
             is_float = True
-        if string[j] == '-':
-            if j != i and not string[j-1] == 'e':
-                raise Exception('Invalid float')
+        if string[j] in ['-', '+']:
+            if j != i and not string[j - 1] == 'e':
+                if is_float:
+                    raise Exception('Invalid float')
+                raise Exception('Invalid int')
         j += 1
 
     if j == i:
