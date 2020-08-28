@@ -89,7 +89,6 @@ class TestLexNumber(unittest.TestCase):
             with raise_with_message(test, expect):
                 self.assertEqual(lexer.lex_number(0, test), expect)
 
-    @unittest.skip
     def test_lex_exp(self):
         tests = [
             ('1e3', (3, 1000.0)),
@@ -99,11 +98,11 @@ class TestLexNumber(unittest.TestCase):
             with raise_with_message(test, expect):
                 self.assertEqual(lexer.lex_number(0, test), expect)
 
-    @unittest.skip
     def test_lex_fail_invalid_exp(self):
         tests = [
             '1ee3',
             '1e3e',
+            '1e',
         ]
         for test in tests:
             with self.assertRaisesRegex(Exception, 'Invalid float'):
@@ -113,6 +112,7 @@ class TestLexNumber(unittest.TestCase):
         tests = [
             '1.1.1',
             '1..1',
+            '1.',
         ]
         for test in tests:
             with self.assertRaisesRegex(Exception, 'Invalid float'):

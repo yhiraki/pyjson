@@ -84,7 +84,7 @@ def lex_string(i, string):
 
 def lex_number(i, string):
     numbers = [str(i) for i in range(10)]
-    symbols = ['.']
+    symbols = ['.', 'e']
     number_chars = numbers + symbols
 
     if string[i] not in (numbers + ['-']):
@@ -94,7 +94,7 @@ def lex_number(i, string):
 
     j = i
     while j < len(string) and string[j] in number_chars:
-        if string[j] == '.':
+        if string[j] in ['.', 'e']:
             if is_float:
                 raise Exception('Invalid float')
             is_float = True
@@ -106,6 +106,8 @@ def lex_number(i, string):
     json_number = string[i:j]
 
     if is_float:
+        if string[-1] in ['.', 'e']:
+            raise Exception('Invalid float')
         return j, float(json_number)
 
     if len(string) > 1 and string[0] == '0':
