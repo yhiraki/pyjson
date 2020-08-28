@@ -8,11 +8,11 @@ from contextlib import contextmanager
 
 
 @contextmanager
-def raise_with_message(test, expected):
+def raise_with_message(test, expect):
     try:
         yield
     except Exception as e:
-        raise Exception(f'test: {test}, expected: {expected}') from e
+        raise Exception(f'test: {test}, expected: {expect}') from e
 
 
 class TestLexString(unittest.TestCase):
@@ -22,7 +22,8 @@ class TestLexString(unittest.TestCase):
             ('true', (0, None)),
         ]
         for test, expect in tests:
-            self.assertEqual(lexer.lex_string(0, test), expect)
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex_string(0, test), expect)
 
     def test_lex_escaped(self):
         tests = [
@@ -32,7 +33,8 @@ class TestLexString(unittest.TestCase):
             (r'"\t"', (4, '\t')),
         ]
         for test, expect in tests:
-            self.assertEqual(lexer.lex_string(0, test), expect)
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex_string(0, test), expect)
 
     def test_lex_fail_end_of_string_quote(self):
         tests = [
@@ -72,8 +74,9 @@ class TestLexNumber(unittest.TestCase):
             ('10', (2, 10)),
             ('a', (0, None)),
         ]
-        for test, expected in tests:
-            self.assertEqual(lexer.lex_number(0, test), expected)
+        for test, expect in tests:
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex_number(0, test), expect)
 
     def test_lex_float(self):
         tests = [
@@ -82,9 +85,9 @@ class TestLexNumber(unittest.TestCase):
             ('.', (0, None)),
             ('.1', (0, None)),
         ]
-        for test, expected in tests:
-            with raise_with_message(test, expected):
-                self.assertEqual(lexer.lex_number(0, test), expected)
+        for test, expect in tests:
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex_number(0, test), expect)
 
     @unittest.skip
     def test_lex_exp(self):
@@ -92,8 +95,9 @@ class TestLexNumber(unittest.TestCase):
             ('1e3', (3, 1000.0)),
             ('e10', (0, None)),
         ]
-        for test, expected in tests:
-            self.assertEqual(lexer.lex_number(0, test), expected)
+        for test, expect in tests:
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex_number(0, test), expect)
 
     @unittest.skip
     def test_lex_fail_invalid_exp(self):
@@ -130,8 +134,9 @@ class TestLexBool(unittest.TestCase):
             ('false', (5, False)),
             ('e', (0, None)),
         ]
-        for test, expected in tests:
-            self.assertEqual(lexer.lex_bool(0, test), expected)
+        for test, expect in tests:
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex_bool(0, test), expect)
 
 
 class TestLexNull(unittest.TestCase):
@@ -140,8 +145,9 @@ class TestLexNull(unittest.TestCase):
             ('null', (4, None)),
             ('a', (0, None)),
         ]
-        for test, expected in tests:
-            self.assertEqual(lexer.lex_null(0, test), expected)
+        for test, expect in tests:
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex_null(0, test), expect)
 
 
 class TestLexer(unittest.TestCase):
@@ -164,11 +170,9 @@ class TestLexer(unittest.TestCase):
             ('{"hoge": "fuga", "piyo": 1}',
              ['{', 'hoge', ':', 'fuga', ',', 'piyo', ':', 1, '}']),
         ]
-        for test, expected in tests:
-            try:
-                self.assertEqual(lexer.lex(test), expected)
-            except Exception as e:
-                raise Exception(f'{test}, {expected}') from e
+        for test, expect in tests:
+            with raise_with_message(test, expect):
+                self.assertEqual(lexer.lex(test), expect)
 
 
 if __name__ == '__main__':
