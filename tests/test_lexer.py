@@ -18,7 +18,7 @@ class TestLexString(unittest.TestCase):
     def test_lex_escaped(self):
         tests = [
             (r'"\"a"', (5, '"a')),
-            (r'"\uxxx"', (7, r'\uxxx')),
+            (r'"\u3042"', (8, 'あ')),
             (r'"\\"', (4, '\\')),
             (r'"\t"', (4, '\t')),
         ]
@@ -38,9 +38,20 @@ class TestLexString(unittest.TestCase):
         tests = [
             r'"\h"',
             r'"\a"',
+            r'"\u"',
+            r'"\u00"',
         ]
         for test in tests:
-            with self.assertRaisesRegex(Exception, 'escape'):
+            with self.assertRaisesRegex(Exception, 'Unexpected escape'):
+                r = lexer.lex_string(0, test)
+                print(r)
+
+    def test_lex_fail_unicode(self):
+        tests = [
+            r'"\uxxxx"',
+        ]
+        for test in tests:
+            with self.assertRaisesRegex(Exception, 'Unexpected unicode'):
                 r = lexer.lex_string(0, test)
                 print(r)
 
@@ -99,6 +110,7 @@ class TestLexer(unittest.TestCase):
             ('{ }', ['{', '}']),
             ('{"hoge"}', ['{', 'hoge', '}']),
             (r'{"\"hoge"}', ['{', '"hoge', '}']),
+            (r'{"\u3042"}', ['{', 'あ', '}']),
             ('[{"hoge"}]', ['[', '{', 'hoge', '}', ']']),
             ('{ "hoge" }', ['{', 'hoge', '}']),
             (' {"hoge"} ', ['{', 'hoge', '}']),

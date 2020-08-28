@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 JSON_QUOTE = '"'
+JSON_COLON = ':'
+JSON_COMMA = ','
 
 JSON_OPENBRACE = '{'
 JSON_CLOSEBRACE = '}'
 JSON_OPENBRACKET = '['
 JSON_CLOSEBRACKET = ']'
-JSON_COLON = ':'
-JSON_COMMA = ','
+
 JSON_WHITESPACE = ' \t\b\n\r'
 
 JSON_TRUE = 'true'
@@ -32,7 +33,7 @@ JSON_ESCAPED = {
     'n': '\n',
     'r': '\r',
     't': '\t',
-    'u': '\\u'
+    'u': 'u'
 }
 
 
@@ -43,6 +44,7 @@ def lex_string(i, string):
     ret = ''
     j = i + 1
     while j < len(string) and string[j] != JSON_QUOTE:
+
         if string[j] == '\\':
             j += 1
             if j >= len(string):
@@ -50,9 +52,27 @@ def lex_string(i, string):
             c = JSON_ESCAPED.get(string[j])
             if not c:
                 raise Exception(f'Unexpected escape charactor \\{string[j]}')
+
+            if c == 'u':
+                j += 1
+                k = j + 4
+                if k >= len(string):
+                    raise Exception(
+                        f'Unexpected escape charactor \\{string[j:j+4]}')
+                try:
+                    h = int(string[j:j + 4], 16)
+                except ValueError as e:
+                    raise Exception(
+                        f'Unexpected unicode charactor \\u{string[j:j + 4]}'
+                    ) from e
+                ret += chr(h)
+                j = k
+                continue
+
             ret += c
             j += 1
             continue
+
         ret += string[j]
         j += 1
 
