@@ -71,6 +71,8 @@ class TestLexNumber(unittest.TestCase):
     def test_lex_int(self):
         tests = [
             ('1', (1, 1)),
+            ('-1', (2, -1)),
+            ('-10', (3, -10)),
             ('10', (2, 10)),
             ('a', (0, None)),
         ]
@@ -81,7 +83,9 @@ class TestLexNumber(unittest.TestCase):
     def test_lex_float(self):
         tests = [
             ('1.0', (3, 1.0)),
+            ('-1.0', (4, -1.0)),
             ('0.1', (3, 0.1)),
+            ('-0.1', (4, -0.1)),
             ('.', (0, None)),
             ('.1', (0, None)),
         ]
@@ -92,6 +96,9 @@ class TestLexNumber(unittest.TestCase):
     def test_lex_exp(self):
         tests = [
             ('1e3', (3, 1000.0)),
+            ('10e3', (4, 10000.0)),
+            ('1e-3', (4, 0.001)),
+            ('10e-3', (5, 0.01)),
             ('e10', (0, None)),
         ]
         for test, expect in tests:
@@ -103,6 +110,7 @@ class TestLexNumber(unittest.TestCase):
             '1ee3',
             '1e3e',
             '1e',
+            '1-e3',
         ]
         for test in tests:
             with self.assertRaisesRegex(Exception, 'Invalid float'):
