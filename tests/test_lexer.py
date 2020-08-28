@@ -42,7 +42,7 @@ class TestLexString(unittest.TestCase):
             r'"\u00"',
         ]
         for test in tests:
-            with self.assertRaisesRegex(Exception, 'Unexpected escape'):
+            with self.assertRaisesRegex(Exception, 'Invalid escape'):
                 r = lexer.lex_string(0, test)
                 print(r)
 
@@ -51,7 +51,7 @@ class TestLexString(unittest.TestCase):
             r'"\uxxxx"',
         ]
         for test in tests:
-            with self.assertRaisesRegex(Exception, 'Unexpected unicode'):
+            with self.assertRaisesRegex(Exception, 'Invalid unicode'):
                 r = lexer.lex_string(0, test)
                 print(r)
 
@@ -77,7 +77,7 @@ class TestLexNumber(unittest.TestCase):
             '..',
         ]
         for test in tests:
-            with self.assertRaisesRegex(Exception, 'invalid float'):
+            with self.assertRaisesRegex(Exception, 'Invalid float'):
                 lexer.lex_number(0, test)
 
 

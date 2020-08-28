@@ -51,19 +51,19 @@ def lex_string(i, string):
                 raise
             c = JSON_ESCAPED.get(string[j])
             if not c:
-                raise Exception(f'Unexpected escape charactor \\{string[j]}')
+                raise Exception(f'Invalid escape charactor \\{string[j]}')
 
             if c == 'u':
                 j += 1
                 k = j + 4
                 if k >= len(string):
                     raise Exception(
-                        f'Unexpected escape charactor \\{string[j:j+4]}')
+                        f'Invalid escape charactor \\{string[j:j+4]}')
                 try:
                     h = int(string[j:j + 4], 16)
                 except ValueError as e:
                     raise Exception(
-                        f'Unexpected unicode charactor \\u{string[j:j + 4]}'
+                        f'Invalid unicode charactor \\u{string[j:j + 4]}'
                     ) from e
                 ret += chr(h)
                 j = k
@@ -93,7 +93,7 @@ def lex_number(i, string):
     while j < len(string) and string[j] in number_chars:
         if string[j] == '.':
             if is_float:
-                raise Exception('invalid float')
+                raise Exception('Invalid float')
             is_float = True
         j += 1
 
@@ -104,7 +104,7 @@ def lex_number(i, string):
 
     if is_float:
         if len(json_number) == 1:
-            raise Exception('invalid float')
+            raise Exception('Invalid float')
         return j, float(json_number)
 
     return j, int(json_number)
