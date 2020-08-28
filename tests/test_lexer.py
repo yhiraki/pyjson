@@ -4,11 +4,20 @@ import unittest
 
 from pyjson import lexer
 
+from contextlib import contextmanager
+
+
+@contextmanager
+def raise_with_message(test, expected):
+    try:
+        yield
+    except Exception as e:
+        raise Exception(f'test: {test}, expected: {expected}') from e
+
 
 class TestLexString(unittest.TestCase):
     def test_lex_string(self):
         tests = [
-            ('"a"', (3, 'a')),
             ('"a"', (3, 'a')),
             ('true', (0, None)),
         ]
@@ -57,27 +66,60 @@ class TestLexString(unittest.TestCase):
 
 
 class TestLexNumber(unittest.TestCase):
-    def test_lex_number(self):
+    def test_lex_int(self):
         tests = [
             ('1', (1, 1)),
             ('10', (2, 10)),
-            ('1.0', (3, 1.0)),
-            ('0.1', (3, 0.1)),
-            ('.1', (2, 0.1)),
             ('a', (0, None)),
         ]
         for test, expected in tests:
             self.assertEqual(lexer.lex_number(0, test), expected)
 
+    def test_lex_float(self):
+        tests = [
+            ('1.0', (3, 1.0)),
+            ('0.1', (3, 0.1)),
+            ('.', (0, None)),
+            ('.1', (0, None)),
+        ]
+        for test, expected in tests:
+            with raise_with_message(test, expected):
+                self.assertEqual(lexer.lex_number(0, test), expected)
+
+    @unittest.skip
+    def test_lex_exp(self):
+        tests = [
+            ('1e3', (3, 1000.0)),
+            ('e10', (0, None)),
+        ]
+        for test, expected in tests:
+            self.assertEqual(lexer.lex_number(0, test), expected)
+
+    @unittest.skip
+    def test_lex_fail_invalid_exp(self):
+        tests = [
+            '1ee3',
+            '1e3e',
+        ]
+        for test in tests:
+            with self.assertRaisesRegex(Exception, 'Invalid float'):
+                lexer.lex_number(0, test)
+
     def test_lex_fail_invalid_float(self):
         tests = [
             '1.1.1',
             '1..1',
-            '.',
-            '..',
         ]
         for test in tests:
             with self.assertRaisesRegex(Exception, 'Invalid float'):
+                lexer.lex_number(0, test)
+
+    def test_lex_fail_invalid_int(self):
+        tests = [
+            '01',
+        ]
+        for test in tests:
+            with self.assertRaisesRegex(Exception, 'Invalid int'):
                 lexer.lex_number(0, test)
 
 
@@ -117,14 +159,16 @@ class TestLexer(unittest.TestCase):
             (' {""} ', ['{', '', '}']),
             ('{"hoge": 1}', ['{', 'hoge', ':', 1, '}']),
             ('{"hoge": 1.0}', ['{', 'hoge', ':', 1.0, '}']),
-            ('{"hoge": .1}', ['{', 'hoge', ':', 0.1, '}']),
             ('{"hoge": true}', ['{', 'hoge', ':', True, '}']),
             ('{"hoge": null}', ['{', 'hoge', ':', None, '}']),
             ('{"hoge": "fuga", "piyo": 1}',
              ['{', 'hoge', ':', 'fuga', ',', 'piyo', ':', 1, '}']),
         ]
         for test, expected in tests:
-            self.assertEqual(lexer.lex(test), expected)
+            try:
+                self.assertEqual(lexer.lex(test), expected)
+            except Exception as e:
+                raise Exception(f'{test}, {expected}') from e
 
 
 if __name__ == '__main__':
