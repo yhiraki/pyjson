@@ -1,27 +1,14 @@
 # -*- coding: utf-8 -*-
 
-JSON_QUOTE = '"'
-JSON_COLON = ':'
-JSON_COMMA = ','
-
-JSON_OPENBRACE = '{'
-JSON_CLOSEBRACE = '}'
-JSON_OPENBRACKET = '['
-JSON_CLOSEBRACKET = ']'
-
-JSON_WHITESPACE = ' \t\b\n\r'
-
-JSON_TRUE = 'true'
-JSON_FALSE = 'false'
-JSON_NULL = 'null'
+from . import const
 
 JSON_SYNTAX = (
-    JSON_OPENBRACE,
-    JSON_CLOSEBRACE,
-    JSON_OPENBRACKET,
-    JSON_CLOSEBRACKET,
-    JSON_COLON,
-    JSON_COMMA,
+    const.OPENBRACE,
+    const.CLOSEBRACE,
+    const.OPENBRACKET,
+    const.CLOSEBRACKET,
+    const.COLON,
+    const.COMMA,
 )
 
 JSON_ESCAPED = {
@@ -38,12 +25,12 @@ JSON_ESCAPED = {
 
 
 def lex_string(i, string):
-    if string[i] != JSON_QUOTE:
+    if string[i] != const.QUOTE:
         return i, None
 
     ret = ''
     j = i + 1
-    while j < len(string) and string[j] != JSON_QUOTE:
+    while j < len(string) and string[j] != const.QUOTE:
 
         if string[j] == '\\':
             j += 1
@@ -76,7 +63,7 @@ def lex_string(i, string):
         ret += string[j]
         j += 1
 
-    if j >= len(string) or string[j] != JSON_QUOTE:
+    if j >= len(string) or string[j] != const.QUOTE:
         raise Exception('Expected end-of-string quote')
 
     return j + 1, ret
@@ -122,10 +109,10 @@ def lex_number(i, string):
 
 
 def lex_bool(i, string):
-    if string[i] not in (JSON_TRUE[0], JSON_FALSE[0]):
+    if string[i] not in (const.TRUE[0], const.FALSE[0]):
         return i, None
 
-    for b, ret in ((JSON_TRUE, True), (JSON_FALSE, False)):
+    for b, ret in ((const.TRUE, True), (const.FALSE, False)):
         len_b = len(b)
         if string[i:i + len_b] == b:
             return i + len_b, ret
@@ -134,17 +121,17 @@ def lex_bool(i, string):
 
 
 def lex_null(i, string):
-    if string[i] not in JSON_NULL[0]:
+    if string[i] not in const.NULL[0]:
         return i, None
 
-    for b, ret in ((JSON_NULL, None), ):
+    for b, ret in ((const.NULL, None), ):
         len_b = len(b)
         if string[i:i + len_b] == b:
             return i + len_b, ret
 
 
 def skip_whitespace(i, string):
-    while i < len(string) and string[i] in JSON_WHITESPACE:
+    while i < len(string) and string[i] in const.WHITESPACE:
         i += 1
     return i
 
