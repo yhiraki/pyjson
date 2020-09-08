@@ -62,7 +62,7 @@ def parse_object(i, tokens):
 
             t = tokens[i]
             if t == const.CLOSEBRACE:
-                return i, obj
+                return i + 1, obj
 
             if t != const.COMMA:
                 raise Exception('Excepted comma after pair in object')
